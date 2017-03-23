@@ -5,16 +5,17 @@ import (
 	"math/rand"
 )
 
+// The value representing a mine in the field
+const mineVal = -1
+
 // Minefield - struct
 type Minefield struct {
-	mineVal   int
 	minefield []int
 }
 
 // NewMineField - constructor
 func NewMineField(colLength, rowLength, mineCount, row, column int) *Minefield {
 	m := new(Minefield)
-	m.mineVal = -1
 	m.minefield = make([]int, colLength*rowLength)
 	m.placeMines(colLength, rowLength, mineCount, row, column)
 	m.fillHints(colLength, rowLength)
@@ -24,7 +25,7 @@ func NewMineField(colLength, rowLength, mineCount, row, column int) *Minefield {
 
 // GetMineVal - Gets int representation of a mine in the minefield
 func (m *Minefield) GetMineVal() int {
-	return m.mineVal
+	return mineVal
 }
 
 // GetCellVal - Retrieves value of the specified cell
@@ -41,13 +42,13 @@ func (m *Minefield) placeMines(colLength, rowLength, mineCount, row,
 	var r, c int
 	for i := 0; i < mineCount; i++ {
 		r, c = rand.Intn(rowLength), rand.Intn(colLength)
-		for m.minefield[(colLength*r)+c] == m.mineVal ||
+		for m.minefield[(colLength*r)+c] == mineVal ||
 			(r == row && c == column) {
 			r = rand.Intn(rowLength)
 			c = rand.Intn(colLength)
 		}
 
-		m.minefield[(colLength*r)+c] = m.mineVal
+		m.minefield[(colLength*r)+c] = mineVal
 	}
 }
 
@@ -61,9 +62,8 @@ func (m *Minefield) fillHints(colLength, rowLength int) {
 				for j := -1; j <= 1; j++ {
 					if row+i >= 0 && row+i < rowLength && column+j >= 0 &&
 						column+j < colLength {
-						if m.minefield[(colLength*row)+column] != m.mineVal {
-							if m.minefield[(colLength*(row+i))+(column+j)] ==
-								m.mineVal {
+						if m.minefield[(colLength*row)+column] != mineVal {
+							if m.minefield[(colLength*(row+i))+(column+j)] == mineVal {
 								m.minefield[(colLength*row)+column]++
 							}
 						}

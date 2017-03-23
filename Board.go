@@ -6,25 +6,23 @@ import (
 	"strconv"
 )
 
-// Board struct
+// This mapping will be how the field is displayed
+const coverSymbol, emptySymbol, mineSymbol = "X", ".", "*"
+
+// Board - structure
 type Board struct {
-	coverSymbol, emptySymbol, mineSymbol string
-	colLen, rowLen, mCount, row, column  int
-	boardgame                            []int
+	colLen, rowLen, mCount, row, column int
+	boardgame                           []int
 	*Minefield
 }
 
 // NewBoard - constructor
 func NewBoard(xSize, ySize, mines int) *Board {
 	b := new(Board)
-	b.coverSymbol = "X"
-	b.emptySymbol = "."
-	b.mineSymbol = "*"
 	b.colLen = xSize
 	b.rowLen = ySize
 	b.mCount = mines
-	b.row = -1
-	b.column = -1
+	b.row, b.column = -1, -1
 	// Only setup the board to avoid losing on the first turn
 	b.startBoard()
 
@@ -61,11 +59,11 @@ func (b *Board) ShowBoard() {
 			val := b.boardgame[(b.colLen*(x-1))+(y-1)]
 			switch val {
 			case -1:
-				rLine.WriteString(b.mineSymbol)
+				rLine.WriteString(mineSymbol)
 			case 0:
-				rLine.WriteString(b.emptySymbol)
+				rLine.WriteString(emptySymbol)
 			case 9:
-				rLine.WriteString(b.coverSymbol)
+				rLine.WriteString(coverSymbol)
 			default:
 				rLine.WriteString(strconv.Itoa(val))
 			}

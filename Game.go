@@ -24,7 +24,7 @@ func NewGame() {
 		g.User()
 	} else {
 		// TODO: Implement Solver
-		// Solver()
+		// NewSolver()
 	}
 }
 
