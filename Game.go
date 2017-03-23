@@ -10,7 +10,7 @@ type game struct {
 	turn int
 }
 
-// NewGame constructor
+// NewGame - constructor
 func NewGame() {
 	var answer string
 	g := new(game)
@@ -103,7 +103,7 @@ func (g *game) Play() {
 	}
 
 	if g.Board.Win() {
-		fmt.Printf("Congrats, you found all the mines in %d turns.", g.turn)
+		fmt.Printf("Congrats, you found all the mines in %d turns.\n", g.turn)
 	} else {
 		fmt.Println("You hit a mine! Try again.")
 	}

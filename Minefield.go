@@ -5,13 +5,13 @@ import (
 	"math/rand"
 )
 
-// Minefield struct
+// Minefield - struct
 type Minefield struct {
 	mineVal   int
 	minefield []int
 }
 
-// NewMineField constructor
+// NewMineField - constructor
 func NewMineField(colLength, rowLength, mineCount, row, column int) *Minefield {
 	m := new(Minefield)
 	m.mineVal = -1
@@ -38,17 +38,17 @@ func (m *Minefield) placeMines(colLength, rowLength, mineCount, row,
 	if colLength*rowLength == mineCount {
 		log.Fatal("Number of mines equal size of board")
 	}
-	var x, y int
+	var r, c int
 	for i := 0; i < mineCount; i++ {
-		x, y = rand.Intn(rowLength), rand.Intn(colLength)
-		for m.minefield[(colLength*x)+y] == m.mineVal ||
-			(x == row && y == column) {
-			x = rand.Intn(rowLength)
-			y = rand.Intn(colLength)
+		r, c = rand.Intn(rowLength), rand.Intn(colLength)
+		for m.minefield[(colLength*r)+c] == m.mineVal ||
+			(r == row && c == column) {
+			r = rand.Intn(rowLength)
+			c = rand.Intn(colLength)
 		}
-	}
 
-	m.minefield[(colLength*x)+y] = m.mineVal
+		m.minefield[(colLength*r)+c] = m.mineVal
+	}
 }
 
 /*  To fill in the hints, need to look at every empty cell and count the Number
@@ -57,8 +57,8 @@ func (m *Minefield) placeMines(colLength, rowLength, mineCount, row,
 func (m *Minefield) fillHints(colLength, rowLength int) {
 	for row := 0; row < rowLength; row++ {
 		for column := 0; column < colLength; column++ {
-			for i := -1; i < 2; i++ {
-				for j := -1; j < 2; j++ {
+			for i := -1; i <= 1; i++ {
+				for j := -1; j <= 1; j++ {
 					if row+i >= 0 && row+i < rowLength && column+j >= 0 &&
 						column+j < colLength {
 						if m.minefield[(colLength*row)+column] != m.mineVal {

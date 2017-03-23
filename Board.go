@@ -14,7 +14,7 @@ type Board struct {
 	*Minefield
 }
 
-// NewBoard constructor
+// NewBoard - constructor
 func NewBoard(xSize, ySize, mines int) *Board {
 	b := new(Board)
 	b.coverSymbol = "X"
@@ -44,8 +44,8 @@ func (b *Board) GetBoardValues() []int {
 }
 
 // IsCellCovered - Checks whether or not a cell is in a covered state
-func (b *Board) IsCellCovered(column, row int) bool {
-	return b.boardgame[(b.colLen*b.row)+b.column] == 9
+func (b *Board) IsCellCovered(c, r int) bool {
+	return b.boardgame[(b.colLen*r)+c] == 9
 }
 
 // ShowBoard - Shows the current state of the board in ASCII form
@@ -116,12 +116,12 @@ func (b *Board) SetPosition() bool {
 				dig = b.rowLen
 			}
 			if err != nil {
-				fmt.Printf("Choose a number between 1 and %d", dig)
+				fmt.Printf("Choose a number between 1 and %d\n", dig)
 				continue
 			}
 			if (itr == 0 && (b.row < 0 || b.row > b.rowLen-1)) ||
 				(itr != 0 && (b.column < 0 || b.column > b.colLen-1)) {
-				fmt.Printf("Choose a number between 1 and %d", dig)
+				fmt.Printf("Choose a number between 1 and %d\n", dig)
 			} else {
 				itr++
 			}

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// GetInput simplifies getting and formatting user input
+// GetInput - simplifies getting and formatting user input
 func GetInput(statement ...string) string {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print(statement)
