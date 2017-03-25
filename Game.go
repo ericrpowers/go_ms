@@ -23,8 +23,7 @@ func NewGame() {
 	if answer == "u" {
 		g.User()
 	} else {
-		// TODO: Implement Solver
-		// NewSolver()
+		NewSolver()
 	}
 }
 

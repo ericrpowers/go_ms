@@ -6,8 +6,8 @@ go_ms is a CLI-based Minesweeper and solver written in Go.
 
 > Suggest using built-in means like `brew` or `apt-get` to avoid human error.
 
-Go - https://golang.org/doc/install#install
-(optional) Docker - https://docs.docker.com/engine/getstarted/
+* Go - https://golang.org/doc/install#install
+* (optional) Docker - https://docs.docker.com/engine/getstarted/
 
 ## Running go_ms
 
