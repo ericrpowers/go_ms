@@ -22,8 +22,8 @@ func NewSolver() {
 	s.numOfGames, s.wins, s.safeMoves = 0, 0, 0
 	s.numOfTurns = 1
 
-	// 10,000 is a good statistical average
-	iterations := 100
+	// 100,000 is a good statistical average
+	iterations := 100000
 	startTime := time.Now()
 
 	for iterations != 0 {
@@ -35,7 +35,7 @@ func NewSolver() {
 			s.numOfTurns++
 			// s.ShowBoard()
 			coordArray = s.SelectNextCell()
-			fmt.Println(coordArray)
+			// fmt.Println(coordArray)
 		}
 
 		if s.Win() {
@@ -51,9 +51,9 @@ func NewSolver() {
 	// Now to print out the statistics
 	fmt.Printf("%20s %10d\n", "Total games", s.numOfGames)
 	fmt.Printf("%20s %10d\n", "Total wins", s.wins)
-	fmt.Printf("%20s %10f\n", "Total time taken (s)", elapsedTime)
-	fmt.Printf("%20s %10f\n", "Win Percentage (%)", float64(s.wins)/(float64(s.numOfGames))*100)
-	fmt.Printf("%20s %10f\n", "Average # of turns", float64(s.numOfTurns)/float64(s.numOfGames))
+	fmt.Printf("%20s %10.3f\n", "Total time taken (s)", elapsedTime)
+	fmt.Printf("%20s %10.3f\n", "Win Percentage (%)", float64(s.wins)/(float64(s.numOfGames))*100)
+	fmt.Printf("%20s %10.3f\n", "Average # of turns", float64(s.numOfTurns)/float64(s.numOfGames))
 }
 
 // SelectNextCell - Blind first move, then safe moves, and finally risky moves
@@ -68,6 +68,7 @@ func (s *solver) SelectNextCell() []int {
 	}
 
 	if s.safeMoves == 0 {
+		fmt.Println("Repopulating board...")
 		s.savedBoard = s.GetBoardValues()
 		s.cellArray = make([]Cell, s.xSize*s.ySize)
 		for i := 0; i < s.xSize*s.ySize; i++ {
@@ -81,9 +82,10 @@ func (s *solver) SelectNextCell() []int {
 	// If no safe moves are identified, find least risky moves
 	if s.safeMoves == 0 {
 		arry = s.SelectRiskyMove()
-		fmt.Printf("Debug: Risky move - Column %d Row %d", (arry[0] + 1), (arry[1] + 1))
+		fmt.Printf("Debug: Risky move - Column %d Row %d\n", (arry[0] + 1), (arry[1] + 1))
 	} else {
 		arry = s.SelectSafeMove()
+		fmt.Printf("Debug: Safe move - Column %d Row %d\n", (arry[0] + 1), (arry[1] + 1))
 		s.safeMoves--
 	}
 
@@ -110,11 +112,8 @@ func validateCells(size, x, xx, y, yy int) bool {
 func (s *solver) CheckNeighbors() {
 	for y := 0; y < s.ySize; y++ {
 		for x := 0; x < s.xSize; x++ {
-			// Check if empty cell
-			if s.cellArray[(s.xSize*y)+x].val == 0 {
-				continue
-				// Check if covered cell
-			} else if s.cellArray[(s.xSize*y)+x].val == 0 {
+			// Check if empty or covered cell
+			if s.cellArray[(s.xSize*y)+x].val == 0 || s.cellArray[(s.xSize*y)+x].val == 9 {
 				continue
 			}
 			s.cellArray[(s.xSize*y)+x].covNeighbors = 0
@@ -146,9 +145,23 @@ func (s *solver) CheckNeighbors() {
 					for xx := x - 1; xx <= x+1; xx++ {
 						if !validateCells(s.xSize, x, xx, y, yy) {
 							continue
-						} else if s.cellArray[(s.xSize*yy)+xx].isMine == 1 {
-							s.cellArray[(s.xSize*y)+x].nearbyMines++
+						} else if s.cellArray[(s.xSize*yy)+xx].val == 9 {
+							s.cellArray[(s.xSize*yy)+xx].isMine = 1
 						}
+					}
+				}
+			}
+
+			// Keep count of identified nearby mines
+			for yy := y - 1; yy <= y+1; yy++ {
+				if !validateCell(yy, s.ySize) {
+					continue
+				}
+				for xx := x - 1; xx <= x+1; xx++ {
+					if !validateCells(s.xSize, x, xx, y, yy) {
+						continue
+					} else if s.cellArray[(s.xSize*yy)+xx].isMine == 1 {
+						s.cellArray[(s.xSize*y)+x].nearbyMines++
 					}
 				}
 			}
@@ -200,7 +213,7 @@ func (s *solver) FindSafeMoves() {
 					if !validateCell(yy, s.ySize) {
 						continue
 					}
-					for xx := 0; xx < x+1; xx++ {
+					for xx := 0; xx <= x+1; xx++ {
 						if !validateCells(s.xSize, x, xx, y, yy) {
 							continue
 						} else if s.cellArray[(s.xSize*yy)+xx].val == 9 &&
@@ -254,7 +267,7 @@ func (s *solver) DeduceMines(y0, x0, y1, x1, y2, x2 int) {
 				s.cellArray[(s.xSize*yy)+xx].isMine == -1) {
 				continue
 			}
-			if s.cellArray[(s.xSize*y0)+x0].val-s.cellArray[(s.xSize*yy)+xx].nearbyMines == 1 {
+			if s.cellArray[(s.xSize*y0)+x0].val-s.cellArray[(s.xSize*y0)+x0].nearbyMines == 1 {
 				// Return if any of the coordinates are 3 away from the cells in question
 				if yy == y1+3 || yy == y1-3 || yy == y2+3 || yy == y2-3 ||
 					xx == x1+3 || xx == x1-3 || xx == x2+3 || xx == x2-3 {
@@ -262,22 +275,22 @@ func (s *solver) DeduceMines(y0, x0, y1, x1, y2, x2 int) {
 				}
 				s.cellArray[(s.xSize*yy)+xx].isMine = 0
 				s.safeMoves++
-				if s.cellArray[(s.xSize*y0)+x0].covNeighbors-s.cellArray[(s.xSize*y0)+x0].val == 2 &&
-					s.cellArray[(s.xSize*yy)+xx].isMine == -1 {
-					s.cellArray[(s.xSize*yy)+xx].isMine = 1
+			}
+			if s.cellArray[(s.xSize*y0)+x0].covNeighbors-s.cellArray[(s.xSize*y0)+x0].val == 2 &&
+				s.cellArray[(s.xSize*yy)+xx].isMine == -1 {
+				s.cellArray[(s.xSize*yy)+xx].isMine = 1
 
-					// Increase the nearby mine count if val is between 1 and 8
-					for yyy := yy - 1; yyy <= yy+1; yyy++ {
-						if !validateCell(yyy, s.ySize) {
+				// Increase the nearby mine count if val is between 1 and 8
+				for yyy := yy - 1; yyy <= yy+1; yyy++ {
+					if !validateCell(yyy, s.ySize) {
+						continue
+					}
+					for xxx := xx - 1; xxx <= xx+1; xxx++ {
+						if !validateCells(s.xSize, xx, xxx, yy, yyy) {
 							continue
 						}
-						for xxx := xx - 1; xxx <= xx+1; xxx++ {
-							if !validateCells(s.xSize, xx, xxx, yy, yyy) {
-								continue
-							}
-							if s.cellArray[(s.xSize*yyy)+xxx].val > 0 || s.cellArray[(s.xSize*yyy)+xxx].val < 9 {
-								s.cellArray[(s.xSize*yyy)+xxx].nearbyMines++
-							}
+						if s.cellArray[(s.xSize*yyy)+xxx].val > 0 && s.cellArray[(s.xSize*yyy)+xxx].val < 9 {
+							s.cellArray[(s.xSize*yyy)+xxx].nearbyMines++
 						}
 					}
 				}

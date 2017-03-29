@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"math/rand"
+	"time"
 )
 
 // The value representing a mine in the field
@@ -41,11 +42,12 @@ func (m *Minefield) placeMines(colLength, rowLength, mineCount, row,
 	}
 	var r, c int
 	for i := 0; i < mineCount; i++ {
-		r, c = rand.Intn(rowLength), rand.Intn(colLength)
+		rGen := rand.New(rand.NewSource(time.Now().UnixNano()))
+		r, c = rGen.Intn(rowLength), rGen.Intn(colLength)
 		for m.minefield[(colLength*r)+c] == mineVal ||
 			(r == row && c == column) {
-			r = rand.Intn(rowLength)
-			c = rand.Intn(colLength)
+			r = rGen.Intn(rowLength)
+			c = rGen.Intn(colLength)
 		}
 
 		m.minefield[(colLength*r)+c] = mineVal

@@ -7,7 +7,11 @@ import (
 )
 
 // This mapping will be how the field is displayed
-const coverSymbol, emptySymbol, mineSymbol = "X", ".", "*"
+const (
+	coverSymbol = "X"
+	emptySymbol = "."
+	mineSymbol  = "*"
+)
 
 // Board - structure
 type Board struct {
@@ -50,38 +54,38 @@ func (b *Board) IsCellCovered(c, r int) bool {
 func (b *Board) ShowBoard() {
 	// TODO: Cleanup layout to make things prettier
 	fmt.Printf("%11s", "Rows\n")
+	var buffer bytes.Buffer
 	for x := b.rowLen; x > 0; x-- {
 		fmt.Printf("%9d ", x)
 
 		for y := 1; y <= b.rowLen; y++ {
-			var rLine bytes.Buffer
-			rLine.WriteString("    ")
+			buffer.WriteString("    ")
 			val := b.boardgame[(b.colLen*(x-1))+(y-1)]
 			switch val {
 			case -1:
-				rLine.WriteString(mineSymbol)
+				buffer.WriteString(mineSymbol)
 			case 0:
-				rLine.WriteString(emptySymbol)
+				buffer.WriteString(emptySymbol)
 			case 9:
-				rLine.WriteString(coverSymbol)
+				buffer.WriteString(coverSymbol)
 			default:
-				rLine.WriteString(strconv.Itoa(val))
+				buffer.WriteString(strconv.Itoa(val))
 			}
-			fmt.Print(rLine.String())
+			fmt.Print(buffer.String())
+			buffer.Reset()
 		}
 		fmt.Println()
 	}
-	var cLine bytes.Buffer
-	cLine.WriteString("\n              1")
+	buffer.WriteString("\n              1")
 	for i := 2; i <= b.colLen; i++ {
 		if i < 10 {
-			cLine.WriteString("    " + strconv.Itoa(i))
+			buffer.WriteString("    " + strconv.Itoa(i))
 		} else {
-			cLine.WriteString("   " + strconv.Itoa(i))
+			buffer.WriteString("   " + strconv.Itoa(i))
 		}
 	}
-	fmt.Println(cLine.String())
-	fmt.Printf(("%" + strconv.Itoa(cLine.Len()/2+9) + "s"), "Columns\n")
+	fmt.Println(buffer.String())
+	fmt.Printf(("%" + strconv.Itoa(buffer.Len()/2+9) + "s"), "Columns\n")
 }
 
 // SetPosition - Sets the next position is be discovered
@@ -137,15 +141,15 @@ func (b *Board) SetPosition() bool {
 }
 
 // GetPositionVal - Retrieves the positions value (empty, hint, or mine)
-func (b *Board) GetPositionVal(y, x int) int {
+func (b *Board) GetPositionVal(pColumn, pRow int) int {
 	// Setup the minefield if it does not exist
-	b.column = y
-	b.row = x
+	b.column = pColumn
+	b.row = pRow
 	if b.Minefield == nil {
-		b.Minefield = NewMineField(b.colLen, b.rowLen, b.mCount, x, y)
+		b.Minefield = NewMineField(b.colLen, b.rowLen, b.mCount, pRow, pColumn)
 	}
 
-	return b.Minefield.GetCellVal((b.colLen * x) + y)
+	return b.Minefield.GetCellVal((b.colLen * pRow) + pColumn)
 }
 
 // IsFinalMove - Finds out if the game is over
